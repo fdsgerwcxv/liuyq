@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给你的小小心意</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rose: {
+                            light: '#FFE6EB',
+                            DEFAULT: '#FFCCD5',
+                            dark: '#FFB3C1'
+                        }
+                    },
+                    fontFamily: {
+                        romantic: ['"Dancing Script"', 'cursive'],
+                        main: ['"Noto Serif SC"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .petal {
+                border-radius: 100% 0;
+                position: absolute;
+                background: linear-gradient(135deg, #fff 0%, #FFCCD5 100%);
+                transform-origin: center;
+                box-shadow: 0 2px 8px rgba(255, 179, 193, 0.5);
+            }
+            .rose-flower {
+                position: absolute;
+                transform-origin: center;
+                pointer-events: none;
+            }
+            .text-char {
+                opacity: 0;
+                transition: opacity 0.5s ease-in-out;
+            }
+            .bg-soft {
+                background: linear-gradient(180deg, #FFF9FB 0%, #FFEEF2 100%);
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Noto+Serif+SC:wght@500&display=swap" rel="stylesheet">
+</head>
+<body class="bg-soft min-h-screen overflow-hidden relative">
+    <!-- 主文字区域 -->
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-center w-full px-6">
+        <p class="font-main text-[clamp(1.5rem,4vw,2.5rem)] text-rose-dark leading-relaxed" id="main-text">
+            <!-- 文字会通过JS逐字生成 -->
+        </p>
+        <p class="font-romantic text-[clamp(1.8rem,5vw,3rem)] text-rose-dark mt-6 opacity-0" id="signature">—— 一直想着你的人</p>
+    </div>
+
+    <script>
+        // 你想表达的文字（可以替换成自己的话）
+        const message = "遇到你之后，才知道心动的感觉原来这么甜。";
+        
+        // 等待页面加载完成
+        window.addEventListener('DOMContentLoaded', () => {
+            // 生成文字元素（每个字单独处理，便于逐字显示）
+            const textContainer = document.getElementById('main-text');
+            message.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.className = 'text-char mx-0.5';
+                span.textContent = char;
+                textContainer.appendChild(span);
+                
+                // 逐字显示（每200ms显示一个字）
+                setTimeout(() => {
+                    span.style.opacity = '1';
+                }, 1000 + index * 200); // 1秒后开始显示
+            });
+            
+            // 显示签名
+            setTimeout(() => {
+                document.getElementById('signature').style.transition = 'opacity 1.5s ease-in-out';
+                document.getElementById('signature').style.opacity = '1';
+            }, 1000 + message.length * 200 + 500);
+            
+            // 开始生成飘落的玫瑰
+            startFallingRoses();
+        });
+        
+        // 生成飘落的玫瑰
+        function startFallingRoses() {
+            // 总共生成30朵玫瑰，每隔300ms生成一朵
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    createFallingRose();
+                }, i * 300);
+            }
+            
+            // 循环生成，让效果持续更久
+            setInterval(() => {
+                for (let i = 0; i < 10; i++) {
+                    setTimeout(() => {
+                        createFallingRose();
+                    }, i * 500);
+                }
+            }, 8000);
+        }
+        
+        // 创建一朵飘落的玫瑰
+        function createFallingRose() {
+            const rose = document.createElement('div');
+            rose.className = 'rose-flower';
+            
+            // 随机大小（小一点更精致）
+            const size = Math.random() * 30 + 20; // 20-50px
+            rose.style.width = `${size}px`;
+            rose.style.height = `${size}px`;
+            
+            // 随机起始位置（顶部横向分布）
+            const startX = Math.random() * 100;
+            rose.style.left = `${startX}%`;
+            rose.style.top = '-10%'; // 从屏幕外顶部进入
+            
+            // 生成花瓣（每朵玫瑰5-8片花瓣）
+            const petalCount = Math.floor(Math.random() * 4) + 5;
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                
+                // 花瓣大小随玫瑰整体大小变化
+                const petalSize = size * (Math.random() * 0.3 + 0.7);
+                petal.style.width = `${petalSize}px`;
+                petal.style.height = `${petalSize * 1.1}px`;
+                
+                // 花瓣角度分布（围绕中心）
+                const angle = (i / petalCount) * 360;
+                petal.style.transform = `rotate(${angle}deg) translate(${size * 0.3}px, 0)`;
+                
+                rose.appendChild(petal);
+            }
+            
+            document.body.appendChild(rose);
+            
+            // 玫瑰飘落动画
+            const duration = Math.random() * 8000 + 6000; // 6-14秒飘落时间
+            const endX = startX + (Math.random() * 60 - 30); // 左右飘动范围（-30%到+30%）
+            const rotate = Math.random() * 720 - 360; // 旋转角度（-360到+360度）
+            
+            // 延迟一下再开始动画，让玫瑰先显示
+            setTimeout(() => {
+                rose.style.transition = `all ${duration}ms ease-in-out`;
+                rose.style.top = '110%'; // 落到屏幕外底部
+                rose.style.left = `${endX}%`;
+                rose.style.transform = `rotate(${rotate}deg)`;
+                rose.style.opacity = '0'; // 最后消失
+            }, 100);
+            
+            // 动画结束后移除元素，避免占用资源
+            setTimeout(() => {
+                rose.remove();
+            }, duration + 100);
+        }
+    </script>
+</body>
+</html>
